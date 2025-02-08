@@ -1,20 +1,19 @@
-import express from "express"; // Use ES module import for express
-import axios from "axios"; // Correct import style for axios
-import * as cheerio from "cheerio"; // Correct import style for Cheerio
+import express from "express";
+import axios from "axios";
+import * as cheerio from "cheerio";
 
 const app = express();
 const port = 5000; // Port for your API
 
 // Middleware for CORS and JSON parsing
-
 app.use(express.json());
 
 // Define the scraping endpoint
 app.get("/scrape", async (req, res) => {
 	try {
-		// Fetch HTML content from the website
+		// Fetch HTML content from the target website
 		const { data } = await axios.get(
-			"https://www.ellecanada.com/fashion/shopping/best-canadian-fashion-brands-under-the-radar"
+			"https://thepurist.life/wardrobe/made-in-canada-the-ultimate-guide-to-canadian-fashion-brands-in-2025/"
 		);
 
 		// Load the HTML content into Cheerio for parsing
@@ -23,22 +22,23 @@ app.get("/scrape", async (req, res) => {
 		// Array to store the extracted data
 		const scrapedData = [];
 
-		// Scraping <h3> tags and their nested <a> tags
-		$("h3").each((index, element) => {
-			const title = $(element).text().trim(); // Extract text from <h3>
+		// Scrape all <li> tags and extract website links
+		$("li").each((index, element) => {
+			// Get the text inside the <li> (optional, if you need it)
+			const text = $(element).text().trim();
 
-			// Check for any <a> tags inside the <h3> and extract the href attribute
+			// Find the <a> tag inside the <li> and get the href attribute (link)
 			const link = $(element).find("a").attr("href");
 
-			if (title && link) {
+			if (link) {
 				// Ensure the link is a full URL
 				const fullLink = link.startsWith("http")
 					? link
-					: `https://www.ellecanada.com${link}`;
+					: `https://thepurist.life${link}`;
 
-				// Push the extracted title and link to the array
+				// Push the link and the associated text (or title) into the array
 				scrapedData.push({
-					title,
+					text: text,
 					link: fullLink,
 				});
 			}
