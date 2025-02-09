@@ -12,9 +12,7 @@ app.use(express.json());
 app.get("/scrape", async (req, res) => {
 	try {
 		// Fetch HTML content from the target website
-		const { data } = await axios.get(
-			"https://thepurist.life/wardrobe/made-in-canada-the-ultimate-guide-to-canadian-fashion-brands-in-2025/"
-		);
+		const { data } = await axios.get("https://madeinca.ca/category/clothes/");
 
 		// Load the HTML content into Cheerio for parsing
 		const $ = cheerio.load(data);
@@ -22,21 +20,19 @@ app.get("/scrape", async (req, res) => {
 		// Array to store the extracted data
 		const scrapedData = [];
 
-		// Scrape all <li> tags and extract website links
-		$("li").each((index, element) => {
-			// Get the text inside the <li> (optional, if you need it)
-			const text = $(element).text().trim();
-
-			// Find the <a> tag inside the <li> and get the href attribute (link)
-			const link = $(element).find("a").attr("href");
+		// Scrape all <h3> tags and extract <a> tags inside them
+		$("h3").each((index, element) => {
+			const aTag = $(element).find("a"); // Find <a> inside <h3>
+			const text = aTag.text().trim(); // Get the text inside <a>
+			const link = aTag.attr("href"); // Get the href attribute of the <a> tag
 
 			if (link) {
 				// Ensure the link is a full URL
 				const fullLink = link.startsWith("http")
 					? link
-					: `https://thepurist.life${link}`;
+					: `https://madeinca.ca${link}`;
 
-				// Push the link and the associated text (or title) into the array
+				// Push the extracted text and link into the array
 				scrapedData.push({
 					text: text,
 					link: fullLink,
